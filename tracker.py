@@ -5,6 +5,7 @@ import os
 base_uri = "https://robertsspaceindustries.com"
 graphql_uri = f"{base_uri}/graphql"
 webhook_uri = os.environ.get('DISCORD_WEBHOOK_URL')
+discord_message_mention = os.environ.get('DISCORD_MENTION_ROLE_ID')
 
 
 def execute():
@@ -315,11 +316,17 @@ def _create_webhook_payload(ships):
             }
         })
     return {
-        "content": "The below ships are on sale with Life Time Insurance (LTI).\n_ _",
+        "content": _determine_content(),
         "embeds": embeds,
         "attachments": []
     }
 
+
+def _determine_content():
+  message = "The below ships are on sale with Life Time Insurance (LTI).\n_ _"
+  if discord_message_mention is not None:
+    return f"<@&{discord_message_mention}> {message}"
+  return message
 
 def _determine_title(ship):
     if ship is not None and ship['name'] is not None:
