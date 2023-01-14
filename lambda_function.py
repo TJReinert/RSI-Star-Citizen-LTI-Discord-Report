@@ -8,10 +8,14 @@ webhook_uri = os.environ.get('DISCORD_WEBHOOK_URL')
 discord_message_mention = os.environ.get('DISCORD_MENTION_ROLE_ID')
 
 
-def execute():
+def execute(event):
     ships = get_lti_pledge_ships_page()
-    task = send_discord_notification(ships)
-    print(f"Sent request with status code: {task.status}")
+    if not event['dryrun']:
+        task = send_discord_notification(ships)
+    else:
+        print(json.dumps(ships))
+        task = {'status': 200}
+    print(f"Sent request with status code: {task['status']}")
 
 
 def data_to_bytes(obj):
@@ -299,6 +303,13 @@ def send_discord_notification(ships):
 
 
 def _create_webhook_payload(ships):
+    if not ships:
+        return {
+            "content": "There are not currently any ships on sale with LTI.",
+            "embeds": [],
+            "attachments": []
+        }
+
     embeds = []
     for ship in ships:
         embeds.append({
@@ -323,10 +334,11 @@ def _create_webhook_payload(ships):
 
 
 def _determine_content():
-  message = "The below ships are on sale with Life Time Insurance (LTI).\n_ _"
-  if discord_message_mention is not None:
-    return f"<@&{discord_message_mention}> {message}"
-  return message
+    message = "The below ships are on sale with Life Time Insurance (LTI).\n_ _"
+    if discord_message_mention is not None:
+        return f"<@&{discord_message_mention}> {message}"
+    return message
+
 
 def _determine_title(ship):
     if ship is not None and ship['name'] is not None:
@@ -367,8 +379,10 @@ def _determine_shop_url(ship):
 
 
 def lambda_handler(event, context):
-    execute()
+    execute(event)
 
 
 if __name__ == "__main__":
-    execute()
+    execute({
+        "dryrun": True
+    })
