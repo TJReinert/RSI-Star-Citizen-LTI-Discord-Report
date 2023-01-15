@@ -18,3 +18,8 @@ I setup a python lambda function and have an event triggered on the last day of 
 | ----------- | ----------- |
 | DISCORD_MENTION_ROLE_ID      | Role ID to mention with every publish       |
 | DISCORD_WEBHOOK_URL   | Webhook URL to send the alert to        |
+
+### **Event variables**
+| Variable      | Description |
+| ----------- | ----------- |
+| dryrun      | If true, logs output to console       |
