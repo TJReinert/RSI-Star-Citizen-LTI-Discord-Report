@@ -19,6 +19,7 @@ def tag(raw_version, raw_description):
     repo = Repo()
     assert not repo.bare
     repo.git.tag(a=version, m=desc)
+    repo.git.push(version)
 
 def format_version(raw_version: str):
     if (raw_version == None):
