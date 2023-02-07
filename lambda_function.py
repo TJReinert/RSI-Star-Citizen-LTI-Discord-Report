@@ -10,13 +10,27 @@ discord_message_mention = os.environ.get('DISCORD_MENTION_ROLE_ID')
 
 def execute(event):
     ships = get_lti_pledge_ships_page()
-    if not event['dryrun']:
+    if is_dryrun(event):
         task = send_discord_notification(ships)
     else:
         print(json.dumps(ships))
         task = {'status': 200}
     print(f"Sent request with status code: {task['status']}")
 
+
+def is_dryrun(event) -> bool:
+  if 'dryrun' not in event:
+    return False
+  
+  dryRunFlag = event['dryrun']
+  if isinstance(dryRunFlag, bool):
+    return dryRunFlag
+  
+  if isinstance(dryRunFlag, str):
+    return dryRunFlag.lower() in ['true', 'yes', 'y']
+  
+  # Catch-all, assume they wanted dry-run.
+  return True
 
 def data_to_bytes(obj):
     return str(json.dumps(obj)).encode("utf-8")
