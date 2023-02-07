@@ -22,7 +22,7 @@ def tag(raw_version, raw_description, push):
     assert not repo.bare
     repo.git.tag(a=version, m=desc)
     if push:
-        repo.git.push(version)
+        repo.git.push("origin", version)
         print(f"Pushed tag {version}.")
     else:
         print(f"\nTag staged, remember to push with the following:\n git push origin {version}")
