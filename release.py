@@ -10,7 +10,7 @@ def get_parser():
                         help="Version of release")
     parser.add_argument('--description', '-d', required=False, type=str,
                         help="Description for release")
-    parser.add_argument('--push', '-p', required=False, type=bool, default=False
+    parser.add_argument('--push', '-p', required=False, default=False, action="store_true",
                         help="Should push tag")
 
     return parser
@@ -25,7 +25,7 @@ def tag(raw_version, raw_description, push):
         repo.git.push(version)
         print(f"Pushed tag {version}.")
     else:
-        print(f"Tag staged, remember to push with the following: git push origin {version}")
+        print(f"\nTag staged, remember to push with the following:\n git push origin {version}")
 
 def format_version(raw_version: str):
     if (raw_version == None):
