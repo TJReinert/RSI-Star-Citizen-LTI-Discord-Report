@@ -11,24 +11,25 @@ discord_message_mention = os.environ.get('DISCORD_MENTION_ROLE_ID')
 def execute(event):
     ships = get_lti_pledge_ships_page()
     if is_dryrun(event):
-      print(json.dumps(ships))
+        print(json.dumps(ships))
     else:
-      send_discord_notification(ships)
-        
+        send_discord_notification(ships)
+
 
 def is_dryrun(event) -> bool:
-  if 'dryrun' not in event:
-    return False
-  
-  dryRunFlag = event['dryrun']
-  if isinstance(dryRunFlag, bool):
-    return dryRunFlag
-  
-  if isinstance(dryRunFlag, str):
-    return dryRunFlag.lower() in ['true', 'yes', 'y']
-  
-  # Catch-all, assume they wanted dry-run.
-  return True
+    if 'dryrun' not in event:
+        return False
+
+    dryRunFlag = event['dryrun']
+    if isinstance(dryRunFlag, bool):
+        return dryRunFlag
+
+    if isinstance(dryRunFlag, str):
+        return dryRunFlag.lower() in ['true', 'yes', 'y']
+
+    # Catch-all, assume they wanted dry-run.
+    return True
+
 
 def data_to_bytes(obj):
     return str(json.dumps(obj)).encode("utf-8")
@@ -58,8 +59,9 @@ def get_lti_pledge_ships_page(page=1):
                         resources = datum['data']['store']['listing']['resources']
                         for ship in resources:
                             if ship is not None:
-                                if "lifetime insurance" in ship['excerpt']:
-                                    lti_ships.append(ship)
+                                if ship['excerpt']:
+                                    if "lifetime insurance" in ship['excerpt']:
+                                        lti_ships.append(ship)
 
     is_last = len(resources) is not limit
 
@@ -68,7 +70,7 @@ def get_lti_pledge_ships_page(page=1):
             return []
         return lti_ships
     else:
-        lti_ships.extend(get_lti_pledge_ships_page(page=page+1))
+        lti_ships.extend(get_lti_pledge_ships_page(page=page + 1))
         return lti_ships
 
 
@@ -111,7 +113,7 @@ fragment TyItemFragment on TyItem {
             #   title
             #   subtitle
             #   body
-            """
+                     """
   url
   excerpt
   type
@@ -126,7 +128,7 @@ fragment TyItemFragment on TyItem {
             #   slideshow
             #   __typename
             # }
-            """
+                     """
     __typename
   }
 """
@@ -136,7 +138,7 @@ fragment TyItemFragment on TyItem {
             #     discountDescription
             #     __typename
             #   }
-            """
+                     """
   price {
     amount
     discounted
@@ -153,11 +155,11 @@ fragment TyItemFragment on TyItem {
             #     ...TyHeapTagFragment
             #     __typename
             #   }
-            """
+                     """
   ... on TySku {
     """
             #    label
-            """
+                     """
     customizable
     isWarbond
     isPackage
