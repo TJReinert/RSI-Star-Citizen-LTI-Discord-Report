@@ -30,11 +30,11 @@ def tag(raw_version, raw_description, push):
 def format_version(raw_version: str):
     if (raw_version == None):
         raise Exception("Version is required")
-    
-    if (semver.VersionInfo.isvalid(raw_version)):
+    try:
+        semver.Version.parse(raw_version)
         return f"v{raw_version}"
-    
-    raise Exception("Version provided is not a valid semantic version.")
+    except ValueError:
+        raise Exception("Version provided is not a valid semantic version.")
 
 
 def format_description(raw_description, version):
