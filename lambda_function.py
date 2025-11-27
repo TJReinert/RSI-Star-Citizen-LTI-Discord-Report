@@ -9,6 +9,10 @@ graphql_uri = f"{base_uri}/graphql"
 webhook_uri = os.environ.get('DISCORD_WEBHOOK_URL')
 discord_message_mention = os.environ.get('DISCORD_MENTION_ROLE_ID')
 
+ship_ignore_list = [
+    'Ultimate Explorer Pack'
+]
+
 
 @dataclass(frozen=True)
 class ShipSaleNotificationDetails:
@@ -77,7 +81,7 @@ def get_lti_pledge_ships_page(page=1) -> [ShipSaleNotificationDetails]:
                                     lti_ships_slugs.append(ship['slug'])
                     count = listing['count']
                     total = listing['totalCount']
-                    count_so_far = limit * (page -1) + count
+                    count_so_far = limit * (page - 1) + count
                     if count_so_far < total:
                         is_last = False
 
@@ -159,7 +163,10 @@ def _create_ship_query_payload(limit=20, page=1):
                             ]
                         },
                         "products": [
-                            72
+                            72,  # Standalone Ships
+                            9,  # Game Packages?
+                            45,  # Game Packages?
+                            46  # Game Packages?
                         ]
                     },
                     "sort": {
@@ -552,6 +559,7 @@ def send_discord_notification(ships: [ShipSaleNotificationDetails], dryrun: bool
             data=data_to_bytes(payload)
         ))
 
+
 def _create_webhook_payload(ships):
     if not ships:
         return {
@@ -562,8 +570,11 @@ def _create_webhook_payload(ships):
 
     embeds = []
     for ship in ships:
+        title = _determine_title(ship)
+        if title.strip() in ship_ignore_list:
+            continue
         embeds.append({
-            "title": _determine_title(ship),
+            "title": title,
             "url": _determine_shop_url(ship),
             "color": 5814783,
             "fields": [
