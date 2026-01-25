@@ -66,7 +66,7 @@ def get_lti_pledge_ships_page(page=1) -> [ShipSaleNotificationDetails]:
         data=data_to_bytes(ship_payload)
     ))
 
-    lti_ships_slugs: [str] = []
+    all_ship_slugs: [str] = []
     is_last = True
     for datum in json.loads(response.read()):
         if datum['data'] is not None:
@@ -78,7 +78,7 @@ def get_lti_pledge_ships_page(page=1) -> [ShipSaleNotificationDetails]:
                         for ship in resources:
                             if ship is not None:
                                 if ship['slug']:
-                                    lti_ships_slugs.append(ship['slug'])
+                                    all_ship_slugs.append(ship['slug'])
                     count = listing['count']
                     total = listing['totalCount']
                     count_so_far = limit * (page - 1) + count
@@ -86,8 +86,8 @@ def get_lti_pledge_ships_page(page=1) -> [ShipSaleNotificationDetails]:
                         is_last = False
 
     lti_ships: [ShipSaleNotificationDetails] = []
-    if len(lti_ships_slugs) > 0:
-        ship_purchase_options_payload = _create_ship_buying_options_query_payload(lti_ships_slugs)
+    if len(all_ship_slugs) > 0:
+        ship_purchase_options_payload = _create_ship_buying_options_query_payload(all_ship_slugs)
 
         response = urllib.request.urlopen(urllib.request.Request(
             method="POST",
@@ -106,7 +106,7 @@ def get_lti_pledge_ships_page(page=1) -> [ShipSaleNotificationDetails]:
                     if datum['data']['store']['search'] is not None:
                         search = datum['data']['store']['search']
                         count = search['count']
-                        if count != len(lti_ships_slugs):
+                        if count != len(all_ship_slugs):
                             # todo: Alert of mismatch slug buying response
                             print("TODO ALERT")
 
@@ -593,6 +593,14 @@ def _create_webhook_payload(ships):
                 "url": _determine_thumbnail_url(ship)
             }
         })
+
+    if not embeds:
+        return {
+            "content": "There are not currently any ships on sale with LTI.",
+            "embeds": [],
+            "attachments": []
+        }
+
     return {
         "content": _determine_content(),
         "embeds": embeds,
